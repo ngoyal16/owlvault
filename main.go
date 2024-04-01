@@ -33,13 +33,20 @@ func main() {
 
 	// Example usage: Store and retrieve data
 	key := "example_key"
-	value := "example_value"
-	err = owlVault.StoreKey(key, value)
+	err = owlVault.Store(key, map[string]interface{}{
+		"k1": "val1",
+	})
 	if err != nil {
 		log.Fatalf("Failed to store data: %v", err)
 	}
 
-	storedValue, err := owlVault.RetrieveKey(key, 1)
+	storedValue, err := owlVault.RetrieveVersion(key, 1)
+	if err != nil {
+		log.Fatalf("Failed to retrieve data: %v", err)
+	}
+	log.Printf("Retrieved value: %s", storedValue)
+
+	storedValue, err = owlVault.RetrieveLatestVersion(key)
 	if err != nil {
 		log.Fatalf("Failed to retrieve data: %v", err)
 	}

@@ -1,5 +1,5 @@
 encryptor:
-  type: aes
+  type: rsa
 
 storage:
   type: "dynamodb"  # or "postgresql" or "mssql" or "oracle" or "mongodb" or "dynamodb"
