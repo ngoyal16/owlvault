@@ -124,7 +124,7 @@ func (d *DynamoDBStorage) LatestVersion(key string) (int, error) {
 
 	// Check if any items were returned
 	if len(result.Items) == 0 {
-		return 0, fmt.Errorf("no versions found for key: %s", key)
+		return 0, nil
 	}
 
 	// Unmarshal the version attribute of the first item
