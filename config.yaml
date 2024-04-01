@@ -1,0 +1,17 @@
+storage:
+  type: "ddb"  # or "postgresql" or "mssql" or "oracle" or "mongodb" or "dynamodb"
+  mysql:
+    connection_string: "root:password@tcp(localhost:3306)/owlvault"
+  postgresql:
+    connection_string: "user=postgres password=postgres dbname=mydb sslmode=disable"
+  mssql:
+    connection_string: "sqlserver://username:password@localhost:1433?database=dbname"
+  oracle:
+    connection_string: "user/password@localhost:1521/SID"
+  mongodb:
+    connection_string: "mongodb://localhost:27017"
+    database_name: "owlvault"
+    collection_name: "vault_data"
+  ddb:
+    region: "us-east-1"
+    table_prefix: "owlvault_"
