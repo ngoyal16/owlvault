@@ -35,14 +35,15 @@ func NewDynamoDBStorage(region string, tablePrefix string) (*DynamoDBStorage, er
 }
 
 // Store stores the key-value pair with the specified version.
-func (d *DynamoDBStorage) Store(keyPath string, value string, version int) error {
+func (d *DynamoDBStorage) Store(keyPath string, contents string, hmac string, version int) error {
 	kvStoreTableName := d.tablePrefix + "kv_store" // Change to your DynamoDB table name
 
 	// Marshal key-value pair to DynamoDB attribute values
 	av, err := dynamodbattribute.MarshalMap(map[string]interface{}{
 		"key_path": keyPath,
 		"version":  fmt.Sprintf("%019d", version),
-		"value":    value,
+		"contents": contents,
+		"hmac":     hmac,
 	})
 	if err != nil {
 		return err
@@ -63,7 +64,7 @@ func (d *DynamoDBStorage) Store(keyPath string, value string, version int) error
 }
 
 // Retrieve retrieves the value for the specified key and version.
-func (d *DynamoDBStorage) Retrieve(keyPath string, version int) (string, error) {
+func (d *DynamoDBStorage) Retrieve(keyPath string, version int) (string, string, error) {
 	kvStoreTableName := d.tablePrefix + "kv_store"
 
 	// Create input for GetItem operation
@@ -82,18 +83,19 @@ func (d *DynamoDBStorage) Retrieve(keyPath string, version int) (string, error) 
 	// Execute GetItem operation
 	result, err := d.svc.GetItem(input)
 	if err != nil {
-		return "", fmt.Errorf("failed to retrieve item: %v", err)
+		return "", "", fmt.Errorf("failed to retrieve item: %v", err)
 	}
 
 	// Unmarshal retrieved item
 	item := struct {
-		Value string `json:"value"`
+		Contents string `json:"contents"`
+		HMAC     string `json:"hmac"`
 	}{}
 	if err := dynamodbattribute.UnmarshalMap(result.Item, &item); err != nil {
-		return "", fmt.Errorf("failed to unmarshal item: %v", err)
+		return "", "", fmt.Errorf("failed to unmarshal item: %v", err)
 	}
 
-	return item.Value, nil
+	return item.Contents, item.HMAC, nil
 }
 
 // LatestVersion is not applicable for DynamoDB storage
