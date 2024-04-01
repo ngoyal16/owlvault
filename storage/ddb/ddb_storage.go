@@ -6,6 +6,7 @@ import (
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
 	"github.com/aws/aws-sdk-go/service/dynamodb/dynamodbattribute"
+	"strconv"
 )
 
 // DynamoDBStorage implements the Storage interface for DynamoDB.
@@ -96,7 +97,48 @@ func (d *DynamoDBStorage) Retrieve(key string, version int) (string, error) {
 
 // LatestVersion is not applicable for DynamoDB storage
 func (d *DynamoDBStorage) LatestVersion(key string) (int, error) {
-	return 0, fmt.Errorf("LatestVersion method is not applicable for DynamoDB storage")
+	kvStoreTableName := d.tablePrefix + "kv_store"
+
+	// Define input for query
+	input := &dynamodb.QueryInput{
+		TableName:              aws.String(kvStoreTableName), // Change to your DynamoDB table name
+		KeyConditionExpression: aws.String("#key = :key"),
+		ExpressionAttributeNames: map[string]*string{
+			"#key": aws.String("key"),
+		},
+		ExpressionAttributeValues: map[string]*dynamodb.AttributeValue{
+			":key": {
+				S: aws.String(key),
+			},
+		},
+		ScanIndexForward: aws.Bool(false), // Sort results in descending order
+		Limit:            aws.Int64(1),    // Limit to 1 item
+	}
+
+	// Execute query
+	result, err := d.svc.Query(input)
+	if err != nil {
+		return 0, fmt.Errorf("failed to query DynamoDB: %v", err)
+	}
+
+	// Check if any items were returned
+	if len(result.Items) == 0 {
+		return 0, fmt.Errorf("no versions found for key: %s", key)
+	}
+
+	// Unmarshal the version attribute of the first item
+	var versionStr string
+	if err := dynamodbattribute.Unmarshal(result.Items[0]["version"], &versionStr); err != nil {
+		return 0, fmt.Errorf("failed to unmarshal version attribute: %v", err)
+	}
+
+	version, err := strconv.Atoi(versionStr)
+	if err != nil {
+		return -1, err
+	}
+
+	return version, err
+
 }
 
 // Migrate is not applicable for DynamoDB storage
