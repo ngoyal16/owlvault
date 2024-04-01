@@ -2,17 +2,23 @@ package vault
 
 import (
 	"fmt"
+
+	"github.com/ngoyal16/owlvault/encrypt"
 	"github.com/ngoyal16/owlvault/storage"
 )
 
 // OwlVault represents the key vault service.
 type OwlVault struct {
-	storage storage.Storage
+	encryptor encrypt.Encryptor
+	storage   storage.Storage
 }
 
 // NewOwlVault creates a new instance of OwlVault with the given storage.
-func NewOwlVault(storage storage.Storage) *OwlVault {
-	return &OwlVault{storage: storage}
+func NewOwlVault(storage storage.Storage, encryptor encrypt.Encryptor) *OwlVault {
+	return &OwlVault{
+		storage:   storage,
+		encryptor: encryptor,
+	}
 }
 
 // StoreKey stores the key-value pair in the vault.
@@ -26,7 +32,13 @@ func (ov *OwlVault) StoreKey(key, value string) error {
 	version += 1
 
 	// Implement logic to store key-value pair in the storage backend
-	if err := ov.storage.Store(key, value, version); err != nil {
+	encryptedValue, err := ov.encryptor.Encrypt([]byte(value))
+	if err != nil {
+		return err
+	}
+
+	// Implement logic to store key-value pair in the storage backend
+	if err := ov.storage.Store(key, string(encryptedValue), version); err != nil {
 		return fmt.Errorf("failed to store key-value pair: %v", err)
 	}
 	return nil
@@ -35,12 +47,18 @@ func (ov *OwlVault) StoreKey(key, value string) error {
 // RetrieveKey retrieves the value for the specified key and version from the vault.
 func (ov *OwlVault) RetrieveKey(key string, version int) (string, error) {
 	// Implement logic to retrieve value from the storage backend
-	retrieve, err := ov.storage.Retrieve(key, version)
+	encryptedValue, err := ov.storage.Retrieve(key, version)
 	if err != nil {
 		return "", err
 	}
 
-	return retrieve, nil
+	// Decrypt the retrieved value
+	decryptedValue, err := ov.encryptor.Decrypt([]byte(encryptedValue))
+	if err != nil {
+		return "", err
+	}
+
+	return string(decryptedValue), nil
 }
 
 // Additional methods for OwlVault can be added as needed.

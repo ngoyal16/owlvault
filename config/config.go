@@ -10,6 +10,9 @@ import (
 
 // Config represents the configuration for the OwlVault service.
 type Config struct {
+	Encryptor struct {
+		Type string `yaml:"type"`
+	} `yaml:"encryptor"`
 	Storage struct {
 		Type  string `yaml:"type"`
 		MySQL struct {
@@ -18,7 +21,7 @@ type Config struct {
 		DDB struct {
 			Region      string `yaml:"region"`
 			TablePrefix string `yaml:"table_prefix"`
-		} `yaml:"ddb"`
+		} `yaml:"dynamodb"`
 		// Add other storage types here
 	} `yaml:"storage"`
 }

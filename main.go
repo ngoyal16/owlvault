@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/ngoyal16/owlvault/encrypt"
 	"log"
 
 	"github.com/ngoyal16/owlvault/config"
@@ -21,13 +22,14 @@ func main() {
 		log.Fatalf("Failed to initialize storage: %v", err)
 	}
 
-	err = dbStorage.Migrate()
+	// Initialize encryptor based on configuration
+	encryptor, err := encrypt.NewEncryptor(cfg)
 	if err != nil {
-		log.Fatalf("Failed to initialize storage: %v", err)
+		log.Fatalf("Failed to initialize encryptor: %v", err)
 	}
 
 	// Initialize OwlVault with the chosen storage implementation
-	owlVault := vault.NewOwlVault(dbStorage)
+	owlVault := vault.NewOwlVault(dbStorage, encryptor)
 
 	// Example usage: Store and retrieve data
 	key := "example_key"

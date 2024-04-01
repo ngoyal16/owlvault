@@ -1,6 +1,7 @@
 package ddb
 
 import (
+	"errors"
 	"fmt"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
@@ -34,14 +35,14 @@ func NewDynamoDBStorage(region string, tablePrefix string) (*DynamoDBStorage, er
 }
 
 // Store stores the key-value pair with the specified version.
-func (d *DynamoDBStorage) Store(key, value string, version int) error {
+func (d *DynamoDBStorage) Store(keyPath string, value string, version int) error {
 	kvStoreTableName := d.tablePrefix + "kv_store" // Change to your DynamoDB table name
 
 	// Marshal key-value pair to DynamoDB attribute values
 	av, err := dynamodbattribute.MarshalMap(map[string]interface{}{
-		"key":     key,
-		"version": fmt.Sprintf("%019d", version),
-		"value":   value,
+		"key_path": keyPath,
+		"version":  fmt.Sprintf("%019d", version),
+		"value":    value,
 	})
 	if err != nil {
 		return err
@@ -62,15 +63,15 @@ func (d *DynamoDBStorage) Store(key, value string, version int) error {
 }
 
 // Retrieve retrieves the value for the specified key and version.
-func (d *DynamoDBStorage) Retrieve(key string, version int) (string, error) {
+func (d *DynamoDBStorage) Retrieve(keyPath string, version int) (string, error) {
 	kvStoreTableName := d.tablePrefix + "kv_store"
 
 	// Create input for GetItem operation
 	input := &dynamodb.GetItemInput{
 		TableName: aws.String(kvStoreTableName), // Change to your DynamoDB table name
 		Key: map[string]*dynamodb.AttributeValue{
-			"key": {
-				S: aws.String(key),
+			"key_path": {
+				S: aws.String(keyPath),
 			},
 			"version": {
 				S: aws.String(fmt.Sprintf("%019d", version)),
@@ -102,12 +103,12 @@ func (d *DynamoDBStorage) LatestVersion(key string) (int, error) {
 	// Define input for query
 	input := &dynamodb.QueryInput{
 		TableName:              aws.String(kvStoreTableName), // Change to your DynamoDB table name
-		KeyConditionExpression: aws.String("#key = :key"),
+		KeyConditionExpression: aws.String("#key_path = :key_path"),
 		ExpressionAttributeNames: map[string]*string{
-			"#key": aws.String("key"),
+			"#key_path": aws.String("key_path"),
 		},
 		ExpressionAttributeValues: map[string]*dynamodb.AttributeValue{
-			":key": {
+			":key_path": {
 				S: aws.String(key),
 			},
 		},
@@ -169,7 +170,8 @@ func (d *DynamoDBStorage) checkTableExists(tableName string) (bool, error) {
 		TableName: aws.String(tableName),
 	})
 	if err != nil {
-		if _, ok := err.(*dynamodb.ResourceNotFoundException); ok {
+		var resourceNotFoundException *dynamodb.ResourceNotFoundException
+		if errors.As(err, &resourceNotFoundException) {
 			return false, nil // Table does not exist
 		}
 		return false, err // Other error occurred
@@ -182,7 +184,7 @@ func (d *DynamoDBStorage) createKVStoreTable(tableName string) error {
 	input := &dynamodb.CreateTableInput{
 		AttributeDefinitions: []*dynamodb.AttributeDefinition{
 			{
-				AttributeName: aws.String("key"),
+				AttributeName: aws.String("key_path"),
 				AttributeType: aws.String("S"),
 			},
 			{
@@ -192,7 +194,7 @@ func (d *DynamoDBStorage) createKVStoreTable(tableName string) error {
 		},
 		KeySchema: []*dynamodb.KeySchemaElement{
 			{
-				AttributeName: aws.String("key"),
+				AttributeName: aws.String("key_path"),
 				KeyType:       aws.String("HASH"),
 			},
 			{
