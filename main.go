@@ -1,10 +1,10 @@
 package main
 
 import (
-	"github.com/ngoyal16/owlvault/encrypt"
 	"log"
 
 	"github.com/ngoyal16/owlvault/config"
+	"github.com/ngoyal16/owlvault/encrypt"
 	"github.com/ngoyal16/owlvault/storage"
 	"github.com/ngoyal16/owlvault/vault"
 )

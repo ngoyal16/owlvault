@@ -2,6 +2,7 @@ package storage
 
 import (
 	"fmt"
+
 	"github.com/ngoyal16/owlvault/config"
 	"github.com/ngoyal16/owlvault/storage/ddb"
 	"github.com/ngoyal16/owlvault/storage/mysql"
