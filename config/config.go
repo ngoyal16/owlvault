@@ -10,6 +10,9 @@ import (
 
 // Config represents the configuration for the OwlVault service.
 type Config struct {
+	Server struct {
+		Addr string `yaml:"addr"`
+	} `yaml:"server"`
 	Encryptor struct {
 		Type string `yaml:"type"`
 	} `yaml:"encryptor"`

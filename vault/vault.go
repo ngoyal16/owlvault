@@ -26,24 +26,24 @@ func NewOwlVault(storage storage.Storage, encryptor encrypt.Encryptor) *OwlVault
 }
 
 // Store stores the key-value pair in the vault.
-func (ov *OwlVault) Store(keyPath string, data map[string]interface{}) error {
+func (ov *OwlVault) StoreData(keyPath string, data map[string]interface{}) (int, error) {
 	// Check if version exists
 	version, err := ov.storage.LatestVersion(keyPath)
 	if err != nil {
-		return err
+		return 0, err
 	}
 
 	version += 1
 
 	b, err := json.Marshal(&data)
 	if err != nil {
-		return fmt.Errorf("error marshaling data: %w", err)
+		return 0, fmt.Errorf("error marshaling data: %w", err)
 	}
 
 	// Implement logic to store key-value pair in the storage backend
 	encryptedValue, err := ov.encryptor.Encrypt(b)
 	if err != nil {
-		return err
+		return 0, err
 	}
 
 	// Calculate HMAC of the value
@@ -55,9 +55,9 @@ func (ov *OwlVault) Store(keyPath string, data map[string]interface{}) error {
 
 	// Implement logic to store key-value pair in the storage backend
 	if err := ov.storage.Store(keyPath, base64Value, base64HMAC, version); err != nil {
-		return fmt.Errorf("failed to store key-value pair: %v", err)
+		return 0, fmt.Errorf("failed to store key-value pair: %v", err)
 	}
-	return nil
+	return version, nil
 }
 
 // RetrieveVersion retrieves the value for the specified key and version from the vault.
