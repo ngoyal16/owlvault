@@ -2,11 +2,13 @@ package ks2
 
 import (
 	"fmt"
+	"net/http"
+
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
+
 	"github.com/ngoyal16/owlvault/models"
 	"github.com/ngoyal16/owlvault/vault"
-	"net/http"
 )
 
 type RetrieveKeyRequest struct {
