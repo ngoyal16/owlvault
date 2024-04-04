@@ -1,6 +1,7 @@
 package ks2
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -47,6 +48,7 @@ func StoreKey(c *gin.Context, ov *vault.OwlVault) (int, any) {
 
 	lVersion, err := ov.StoreData(storeKeyRequest.KeyPath, storeKeyRequest.Data)
 	if err != nil {
+		fmt.Println(err)
 		return http.StatusUnprocessableEntity, ErrorResponse{
 			RequestId: uuid.New().String(),
 			Errors: []Error{
