@@ -25,6 +25,10 @@ func KS2(ov *vault.OwlVault) gin.HandlerFunc {
 			fmt.Println(requestType)
 			code, response = StoreKey(c, ov)
 			break
+		case "StoreKeys":
+			fmt.Println(requestType)
+			code, response = StoreKeys(c, ov)
+			break
 		case "RetrieveKey":
 			fmt.Println(requestType)
 			code, response = RetrieveKey(c, ov)
