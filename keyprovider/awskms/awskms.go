@@ -1,10 +1,15 @@
 package awskms
 
 import (
+	"context"
+	"fmt"
+	"sync"
+	"time"
+
+	bigcache "github.com/allegro/bigcache/v3"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/kms"
-	"sync"
 )
 
 // AWSKMSKeyProvider implements the KeyProvider interface for retrieving keys from AWS KMS.
@@ -20,6 +25,7 @@ type AWSKMSKeyProvider struct {
 
 	isEncKeyExists bool
 	encKey         *kms.GenerateDataKeyOutput
+	keyCacheStore  *bigcache.BigCache
 }
 
 func NewAWSKMSKeyProvider(region string, keyId string) (*AWSKMSKeyProvider, error) {
@@ -32,10 +38,16 @@ func NewAWSKMSKeyProvider(region string, keyId string) (*AWSKMSKeyProvider, erro
 	}
 	svc := kms.New(sess)
 
+	cache, err := bigcache.New(context.Background(), bigcache.DefaultConfig(10*time.Minute))
+	if err != nil {
+		return nil, fmt.Errorf("error encountered while creating kms key provider cache: %v", err)
+	}
+
 	return &AWSKMSKeyProvider{
-		region: region,
-		keyId:  keyId,
-		svc:    svc,
+		region:        region,
+		keyId:         keyId,
+		svc:           svc,
+		keyCacheStore: cache,
 	}, nil
 }
 
@@ -67,7 +79,16 @@ func (kp *AWSKMSKeyProvider) GenerateKey() ([]byte, []byte, []byte, error) {
 
 // RetrieveKey retrieves the encryption key from AWS KMS.
 func (kp *AWSKMSKeyProvider) RetrieveKey(ctBlob []byte) ([]byte, []byte, error) {
-	// Implement logic to retrieve the key from AWS KMS
+	kp.Lock()
+	defer kp.Unlock()
+
+	key, err := kp.keyCacheStore.Get(string(ctBlob))
+	if err == nil {
+		encKey := key[:32]
+		hmacKey := key[32:]
+
+		return encKey, hmacKey, nil
+	}
 
 	// Call AWS KMS API to decrypt the encrypted key
 	resp, err := kp.svc.Decrypt(&kms.DecryptInput{
@@ -77,5 +98,12 @@ func (kp *AWSKMSKeyProvider) RetrieveKey(ctBlob []byte) ([]byte, []byte, error) 
 		return nil, nil, err
 	}
 
-	return resp.Plaintext[:32], resp.Plaintext[32:], nil
+	key = resp.Plaintext
+
+	err = kp.keyCacheStore.Set(string(ctBlob), key)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	return key[:32], key[32:], nil
 }
