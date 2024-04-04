@@ -1,6 +1,7 @@
 package ks2
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -14,14 +15,19 @@ func KS2(ov *vault.OwlVault) gin.HandlerFunc {
 	fn := func(c *gin.Context) {
 		// Your handler code goes in here - e.g.
 		action := c.Query("Action")
+		requestType := c.Request.Method
 
 		var code int
 		var response any
 
 		switch action {
 		case "StoreKey":
+			fmt.Println(requestType)
 			code, response = StoreKey(c, ov)
 			break
+		case "RetrieveKey":
+			fmt.Println(requestType)
+			code, response = RetrieveKey(c, ov)
 		default:
 			code = http.StatusBadRequest
 			response = ErrorResponse{
@@ -39,5 +45,5 @@ func KS2(ov *vault.OwlVault) gin.HandlerFunc {
 		return
 	}
 
-	return gin.HandlerFunc(fn)
+	return fn
 }

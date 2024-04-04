@@ -54,6 +54,7 @@ func main() {
 	{
 		v1.GET("ks2", ks2.KS2(owlVault))
 		v1.POST("ks2", ks2.KS2(owlVault))
+		v1.PATCH("ks2", ks2.KS2(owlVault))
 	}
 
 	// Register routes for different API versions

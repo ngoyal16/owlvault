@@ -15,14 +15,14 @@ type StoreKeyRequest struct {
 	Data    map[string]interface{} `from:"data" json:"data" binding:"required"`
 }
 
-type StoreResponseData struct {
+type StoreKeyResponseData struct {
 	KeyPath string `json:"keyPath"`
 	Version int    `json:"version"`
 }
 
 type StoreKeyResponse struct {
-	RequestId string            `json:"requestId"`
-	Data      StoreResponseData `json:"data,omitempty"`
+	RequestId string               `json:"requestId"`
+	Data      StoreKeyResponseData `json:"data,omitempty"`
 }
 
 func StoreKey(c *gin.Context, ov *vault.OwlVault) (int, any) {
@@ -61,7 +61,7 @@ func StoreKey(c *gin.Context, ov *vault.OwlVault) (int, any) {
 
 	return http.StatusOK, StoreKeyResponse{
 		RequestId: uuid.New().String(),
-		Data: StoreResponseData{
+		Data: StoreKeyResponseData{
 			KeyPath: storeKeyRequest.KeyPath,
 			Version: lVersion,
 		},
