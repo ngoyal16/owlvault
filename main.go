@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/ngoyal16/owlvault/controllers/ks2"
+	"github.com/ngoyal16/owlvault/keyprovider"
 	"log"
 	"net/http"
 
@@ -28,13 +29,19 @@ func main() {
 	}
 
 	// Initialize encryptor based on configuration
+	keyProvider, err := keyprovider.NewKeyProvider(cfg)
+	if err != nil {
+		log.Fatalf("Failed to initialize key provider: %v", err)
+	}
+
+	// Initialize encryptor based on configuration
 	encryptor, err := encrypt.NewEncryptor(cfg)
 	if err != nil {
 		log.Fatalf("Failed to initialize encryptor: %v", err)
 	}
 
 	// Initialize OwlVault with the chosen storage implementation
-	owlVault := vault.NewOwlVault(dbStorage, encryptor)
+	owlVault := vault.NewOwlVault(dbStorage, keyProvider, encryptor)
 
 	// Create a new Gorilla Mux router
 	router := gin.New()

@@ -2,7 +2,14 @@ server:
   addr: "0.0.0.0:8080"
 
 encryptor:
-  type: rsa
+  type: "aes"
+
+key_provider:
+  type: "localfile"
+  local_path:
+    path: "./"
+  aws_kms:
+    key_arn: ""
 
 storage:
   type: "dynamodb"  # or "postgresql" or "mssql" or "oracle" or "mongodb" or "dynamodb"

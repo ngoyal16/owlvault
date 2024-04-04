@@ -8,20 +8,23 @@ import (
 	"fmt"
 
 	"github.com/ngoyal16/owlvault/encrypt"
+	"github.com/ngoyal16/owlvault/keyprovider"
 	"github.com/ngoyal16/owlvault/storage"
 )
 
 // OwlVault represents the key vault service.
 type OwlVault struct {
-	encryptor encrypt.Encryptor
-	storage   storage.Storage
+	encryptor   encrypt.Encryptor
+	storage     storage.Storage
+	keyProvider keyprovider.KeyProvider
 }
 
 // NewOwlVault creates a new instance of OwlVault with the given storage.
-func NewOwlVault(storage storage.Storage, encryptor encrypt.Encryptor) *OwlVault {
+func NewOwlVault(storage storage.Storage, keyProvider keyprovider.KeyProvider, encryptor encrypt.Encryptor) *OwlVault {
 	return &OwlVault{
-		storage:   storage,
-		encryptor: encryptor,
+		encryptor:   encryptor,
+		keyProvider: keyProvider,
+		storage:     storage,
 	}
 }
 

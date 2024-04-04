@@ -1,4 +1,4 @@
-package keymanagers
+package keyprovider
 
 import (
 	"context"
@@ -6,6 +6,12 @@ import (
 	awsConfig "github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/service/kms"
 )
+
+// KeyManagementService defines methods for encryption and decryption.
+type KeyManagementService interface {
+	Encrypt(data []byte) ([]byte, error)
+	Decrypt(data []byte) ([]byte, error)
+}
 
 // AWSKMSProvider represents an AWS KMS provider for encryption and decryption.
 type AWSKMSProvider struct {

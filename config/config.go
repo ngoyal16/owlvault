@@ -16,6 +16,15 @@ type Config struct {
 	Encryptor struct {
 		Type string `yaml:"type"`
 	} `yaml:"encryptor"`
+	KeyProvider struct {
+		Type      string `yaml:"type"`
+		LocalFile struct {
+			Path string `yaml:"path"`
+		} `yaml:"local_file"`
+		AWSKMS struct {
+			KeyArn string `yaml:"key_arn"`
+		} `yaml:"aws_kms"`
+	} `yaml:"key_provider"`
 	Storage struct {
 		Type  string `yaml:"type"`
 		MySQL struct {
