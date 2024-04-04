@@ -9,6 +9,7 @@ key_provider:
   local_path:
     path: "./"
   aws_kms:
+    region: "us-east-1"
     key_arn: ""
 
 storage:

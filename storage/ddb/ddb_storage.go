@@ -36,7 +36,7 @@ func NewDynamoDBStorage(region string, tablePrefix string) (*DynamoDBStorage, er
 }
 
 // Store stores the key-value pair with the specified version.
-func (d *DynamoDBStorage) Store(keyPath string, contents string, hmac string, version int) error {
+func (d *DynamoDBStorage) Store(keyPath string, contents string, hmac string, kpId string, version int) error {
 	kvStoreTableName := d.tablePrefix + "kv_store" // Change to your DynamoDB table name
 
 	// Marshal key-value pair to DynamoDB attribute values
@@ -45,6 +45,7 @@ func (d *DynamoDBStorage) Store(keyPath string, contents string, hmac string, ve
 		"version":  fmt.Sprintf("%019d", version),
 		"contents": contents,
 		"hmac":     hmac,
+		"kp_id":    kpId,
 	})
 	if err != nil {
 		return err
@@ -65,7 +66,7 @@ func (d *DynamoDBStorage) Store(keyPath string, contents string, hmac string, ve
 }
 
 // Retrieve retrieves the value for the specified key and version.
-func (d *DynamoDBStorage) Retrieve(keyPath string, version int) (string, string, error) {
+func (d *DynamoDBStorage) Retrieve(keyPath string, version int) (string, string, string, error) {
 	kvStoreTableName := d.tablePrefix + "kv_store"
 
 	// Create input for GetItem operation
@@ -84,19 +85,20 @@ func (d *DynamoDBStorage) Retrieve(keyPath string, version int) (string, string,
 	// Execute GetItem operation
 	result, err := d.svc.GetItem(input)
 	if err != nil {
-		return "", "", fmt.Errorf("failed to retrieve item: %v", err)
+		return "", "", "", fmt.Errorf("failed to retrieve item: %v", err)
 	}
 
 	// Unmarshal retrieved item
 	item := struct {
 		Contents string `json:"contents"`
 		HMAC     string `json:"hmac"`
+		KPID     string `json:"kp_id"`
 	}{}
 	if err := dynamodbattribute.UnmarshalMap(result.Item, &item); err != nil {
-		return "", "", fmt.Errorf("failed to unmarshal item: %v", err)
+		return "", "", "", fmt.Errorf("failed to unmarshal item: %v", err)
 	}
 
-	return item.Contents, item.HMAC, nil
+	return item.Contents, item.HMAC, item.KPID, nil
 }
 
 // LatestVersion is not applicable for DynamoDB storage

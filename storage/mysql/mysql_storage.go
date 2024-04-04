@@ -46,19 +46,19 @@ func (m *MySQLStorage) Migrate() error {
 }
 
 // Store stores the key-value pair with the specified version and timestamp.
-func (m *MySQLStorage) Store(key, contents, hmac string, version int) error {
+func (m *MySQLStorage) Store(key, contents, hmac string, kpId string, version int) error {
 	_, err := m.db.Exec("INSERT INTO data (key, contents, hmac, version) VALUES (?, ?, ?, ?)", key, contents, hmac, version)
 	return err
 }
 
 // Retrieve retrieves the value for the specified key and version.
-func (m *MySQLStorage) Retrieve(key string, version int) (string, string, error) {
+func (m *MySQLStorage) Retrieve(key string, version int) (string, string, string, error) {
 	var value string
 	err := m.db.QueryRow("SELECT value FROM data WHERE key = ? AND version = ?", key, version).Scan(&value)
 	if err != nil {
-		return "", "", err
+		return "", "", "", err
 	}
-	return value, "", nil
+	return value, "", "", nil
 }
 
 // LatestVersion returns the latest version of the value for the specified key.

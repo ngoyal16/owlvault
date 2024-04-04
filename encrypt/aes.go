@@ -24,8 +24,8 @@ func NewAESEncryptor() (*AESEncryptor, error) {
 }
 
 // Encrypt encrypts the data using AES encryption.
-func (e *AESEncryptor) Encrypt(data []byte) ([]byte, error) {
-	block, err := aes.NewCipher(e.key)
+func (e *AESEncryptor) Encrypt(key []byte, data []byte) ([]byte, error) {
+	block, err := aes.NewCipher(key)
 	if err != nil {
 		return nil, err
 	}
@@ -40,8 +40,8 @@ func (e *AESEncryptor) Encrypt(data []byte) ([]byte, error) {
 }
 
 // Decrypt decrypts the data using AES encryption.
-func (e *AESEncryptor) Decrypt(data []byte) ([]byte, error) {
-	block, err := aes.NewCipher(e.key)
+func (e *AESEncryptor) Decrypt(key []byte, data []byte) ([]byte, error) {
+	block, err := aes.NewCipher(key)
 	if err != nil {
 		return nil, err
 	}

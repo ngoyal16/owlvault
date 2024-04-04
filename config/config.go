@@ -23,6 +23,7 @@ type Config struct {
 		} `yaml:"local_file"`
 		AWSKMS struct {
 			KeyArn string `yaml:"key_arn"`
+			Region string `yaml:"region"`
 		} `yaml:"aws_kms"`
 	} `yaml:"key_provider"`
 	Storage struct {

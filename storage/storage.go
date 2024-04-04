@@ -11,10 +11,10 @@ import (
 // Storage defines the interface for interacting with the storage backend.
 type Storage interface {
 	// Store stores the key-value pair with the specified version and timestamp.
-	Store(keyPath string, contents string, hmac string, version int) error
+	Store(keyPath string, contents string, hmac string, kpId string, version int) error
 
 	// Retrieve retrieves the value for the specified key and version.
-	Retrieve(keyPath string, version int) (string, string, error)
+	Retrieve(keyPath string, version int) (string, string, string, error)
 
 	// LatestVersion returns the latest version of the value for the specified key.
 	LatestVersion(keyPath string) (int, error)

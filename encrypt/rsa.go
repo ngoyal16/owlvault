@@ -34,7 +34,7 @@ func NewRSAEncryptor() (*RSAEncryptor, error) {
 }
 
 // Encrypt encrypts the data using RSA encryption.
-func (e *RSAEncryptor) Encrypt(data []byte) ([]byte, error) {
+func (e *RSAEncryptor) Encrypt(key []byte, data []byte) ([]byte, error) {
 	block, _ := pem.Decode(e.publicKey)
 	if block == nil {
 		return nil, errors.New("failed to decode public key")
@@ -51,7 +51,7 @@ func (e *RSAEncryptor) Encrypt(data []byte) ([]byte, error) {
 }
 
 // Decrypt decrypts the data using RSA encryption.
-func (e *RSAEncryptor) Decrypt(data []byte) ([]byte, error) {
+func (e *RSAEncryptor) Decrypt(key []byte, data []byte) ([]byte, error) {
 	block, _ := pem.Decode(e.privateKey)
 	if block == nil {
 		return nil, errors.New("failed to decode private key")

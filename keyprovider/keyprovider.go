@@ -9,7 +9,8 @@ import (
 
 type KeyProvider interface {
 	// RetrieveKey retrieves the encryption key.
-	RetrieveKey() ([]byte, error)
+	GenerateKey() ([]byte, []byte, []byte, error)
+	RetrieveKey([]byte) ([]byte, []byte, error)
 }
 
 // KeyProviderType represents the type of key provider.
@@ -33,7 +34,7 @@ func NewKeyProvider(cfg *config.Config) (KeyProvider, error) {
 	case LOCAL:
 		keyProvider, err = localfile.NewLocalFileKeyProvider(cfg.KeyProvider.LocalFile.Path)
 	case AWSKMS:
-		keyProvider, err = awskms.NewAWSKMSKeyProvider()
+		keyProvider, err = awskms.NewAWSKMSKeyProvider(cfg.KeyProvider.AWSKMS.Region, cfg.KeyProvider.AWSKMS.KeyArn)
 	default:
 		return nil, fmt.Errorf("unsupported storage type: %s", cfg.KeyProvider.Type)
 	}

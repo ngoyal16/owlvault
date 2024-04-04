@@ -11,9 +11,16 @@ func NewLocalFileKeyProvider(filePath string) (*LocalFileKeyProvider, error) {
 	}, nil
 }
 
-// RetrieveKey retrieves the encryption key from a local file.
-func (kp *LocalFileKeyProvider) RetrieveKey() ([]byte, error) {
+// GenerateKey retrieves the encryption key from a local file.
+func (kp *LocalFileKeyProvider) GenerateKey() ([]byte, []byte, []byte, error) {
 	// Implement logic to read the key from the local file
 
-	return nil, nil
+	return nil, nil, nil, nil
+}
+
+// RetrieveKey retrieves the decryption key from a local file.
+func (kp *LocalFileKeyProvider) RetrieveKey(ctBlob []byte) ([]byte, []byte, error) {
+	// Implement logic to read the key from the local file
+
+	return nil, nil, nil
 }

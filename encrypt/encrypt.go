@@ -7,8 +7,8 @@ import (
 
 // Encryptor defines the interface for encryption algorithms.
 type Encryptor interface {
-	Encrypt(data []byte) ([]byte, error)
-	Decrypt(data []byte) ([]byte, error)
+	Encrypt([]byte, []byte) ([]byte, error)
+	Decrypt([]byte, []byte) ([]byte, error)
 }
 
 // EncryptorType represents the type of encryptor.
