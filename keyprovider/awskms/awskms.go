@@ -4,16 +4,22 @@ import (
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/kms"
+	"sync"
 )
 
 // AWSKMSKeyProvider implements the KeyProvider interface for retrieving keys from AWS KMS.
 type AWSKMSKeyProvider struct {
+	sync.RWMutex
+
 	// AWS KMS specific fields
 	region string
 
 	keyId string
 
 	svc *kms.KMS
+
+	isEncKeyExists bool
+	encKey         *kms.GenerateDataKeyOutput
 }
 
 func NewAWSKMSKeyProvider(region string, keyId string) (*AWSKMSKeyProvider, error) {
@@ -35,14 +41,25 @@ func NewAWSKMSKeyProvider(region string, keyId string) (*AWSKMSKeyProvider, erro
 
 // GenerateKey generates a new encryption key using AWS KMS.
 func (kp *AWSKMSKeyProvider) GenerateKey() ([]byte, []byte, []byte, error) {
-	// Call AWS KMS API to generate a new data key
-	resp, err := kp.svc.GenerateDataKey(&kms.GenerateDataKeyInput{
-		KeyId:         aws.String(kp.keyId),
-		KeySpec:       aws.String("AES_256"),
-		NumberOfBytes: aws.Int64(64),
-	})
-	if err != nil {
-		return nil, nil, nil, err
+	var resp *kms.GenerateDataKeyOutput
+	var err error
+
+	if kp.isEncKeyExists {
+		resp = kp.encKey
+	} else {
+		// Call AWS KMS API to generate a new data key
+		resp, err = kp.svc.GenerateDataKey(&kms.GenerateDataKeyInput{
+			KeyId:         aws.String(kp.keyId),
+			NumberOfBytes: aws.Int64(64),
+		})
+		if err != nil {
+			return nil, nil, nil, err
+		}
+
+		kp.Lock()
+		kp.encKey = resp
+		kp.isEncKeyExists = true
+		kp.Unlock()
 	}
 
 	return resp.Plaintext[:32], resp.Plaintext[32:], resp.CiphertextBlob, nil
