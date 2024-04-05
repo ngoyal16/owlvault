@@ -71,6 +71,7 @@ POST
 - `version` (integer, optional): The version number of the key to be retrieved. If not provided, the latest version will be retrieved.
 
 #### Sample Input
+For latest version
 ```json
 {
   "keyPath": "kv1"
