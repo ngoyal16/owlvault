@@ -24,11 +24,33 @@ POST
 - `keyPath` (string, required): The path to the key to be stored.
 - `data` (object, required): The data associated with the key.
 
+#### Sample Input
+```json
+{
+  "keyPath": "kv1",
+  "data": {
+    "key1": "val1",
+    "key2": "val2"
+  }
+}
+```
+
 #### Output
 - `requestId` (string): Unique identifier for the request.
 - `data` (object):
     - `keyPath` (string): The path to the stored key.
     - `version` (integer): Version number of the stored key.
+
+#### Sample Output
+```json
+{
+  "requestId": "abcdabcd-abcd-abcd-abcd-abcdabcdabcd",
+  "data": {
+    "keyPath": "kv1",
+    "version": 1
+  }
+}
+```
 
 #### Response Codes
 - `200 OK`: Successfully stored the key.
@@ -48,11 +70,42 @@ POST
 - `keyPath` (string, required): The path to the key to be retrieved.
 - `version` (integer, optional): The version number of the key to be retrieved. If not provided, the latest version will be retrieved.
 
+#### Sample Input
+```json
+{
+  "keyPath": "kv1"
+}
+```
+
+For specific version
+
+```json
+{
+  "keyPath": "kv1",
+  "version": 1
+}
+```
+
 #### Output
 - `requestId` (string): Unique identifier for the request.
 - `data` (object):
     - `keyPath` (string): The path to the retrieved key.
     - `data` (object): The data associated with the retrieved key.
+
+#### Sample Output
+```json
+{
+  "requestId": "abcdabcd-abcd-abcd-abcd-abcdabcdabcd",
+  "data": {
+    "keyPath": "kv1",
+    "data": {
+      "key1": "val1",
+      "key2": "val2"
+    }
+  }
+}
+```
+
 
 #### Response Codes
 - `200 OK`: Successfully retrieved the key and its associated data.
@@ -74,11 +127,50 @@ POST
     - `keyPath` (string, required): The path to the key to be stored.
     - `data` (object, required): The data associated with the key.
 
+#### Sample Input
+```json
+{
+  "keysToStore": [
+    {
+      "keyPath": "kv1",
+      "data": {
+        "key1": "val1",
+        "key2": "val2"
+      }
+    },
+    {
+      "keyPath": "kv2",
+      "data": {
+        "key1": "val1",
+        "key2": "val2"
+      }
+    }
+  ]
+}
+```
+
 #### Output
 - `requestId` (string): Unique identifier for the request.
 - `data` (array): An array of objects representing the stored keys and their versions.
     - `keyPath` (string): The path to the stored key.
     - `version` (integer): Version number of the stored key.
+
+#### Sample Output
+```json
+{
+  "requestId": "abcdabcd-abcd-abcd-abcd-abcdabcdabcd",
+  "data": [
+    {
+      "keyPath": "kv1",
+      "version": 1
+    },
+    {
+      "keyPath": "kv2",
+      "version": 1
+    }
+  ]
+}
+```
 
 #### Response Codes
 - `200 OK`: Successfully stored all keys.
