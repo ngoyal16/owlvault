@@ -28,6 +28,10 @@ To start using OwlVault, follow these simple steps:
 export OWLVAULT_CONFIG_PATH=/home/nitin/owlvault-go/config.yaml
 ```
 
+```shell
+sudo go build -o /usr/local/bin/owlvault main.go
+```
+
 ## Feedback and Support
 
 We value your feedback and are committed to continuously improving OwlVault to meet your needs. If you encounter any issues or have suggestions for enhancements, please don't hesitate to reach out to us through our GitHub repository or contact our support team.
