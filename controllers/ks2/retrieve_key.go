@@ -19,6 +19,7 @@ type RetrieveKeyRequest struct {
 type RetrieveKeyResponseData struct {
 	KeyPath string                 `json:"keyPath"`
 	Data    map[string]interface{} `json:"data"`
+	Error   Error                  `json:"error,omitempty"`
 }
 
 type RetrieveKeyResponse struct {
@@ -56,14 +57,27 @@ func RetrieveKey(c *gin.Context, ov *vault.OwlVault) (int, any) {
 
 	if err != nil {
 		fmt.Println(err)
-		return http.StatusUnprocessableEntity, ErrorResponse{
-			RequestId: uuid.New().String(),
-			Errors: []Error{
-				{
-					Code:    "InternalFailure",
-					Message: "The request processing has failed because of an unknown error, exception, or failure.",
+		if err.Error() == "NO_KEY_FOUND" {
+			return http.StatusNoContent, RetrieveKeyResponse{
+				RequestId: uuid.New().String(),
+				Data: RetrieveKeyResponseData{
+					KeyPath: retrieveKeyRequest.KeyPath,
+					Error: Error{
+						Code:    "InvalidKey.KeyNotFound",
+						Message: "Specified key not found in the vault",
+					},
 				},
-			},
+			}
+		} else {
+			return http.StatusUnprocessableEntity, ErrorResponse{
+				RequestId: uuid.New().String(),
+				Errors: []Error{
+					{
+						Code:    "InternalFailure",
+						Message: "The request processing has failed because of an unknown error, exception, or failure.",
+					},
+				},
+			}
 		}
 	}
 

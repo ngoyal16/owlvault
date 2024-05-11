@@ -79,6 +79,10 @@ func (ov *OwlVault) RetrieveVersion(keyPath string, version int) (map[string]int
 		return nil, err
 	}
 
+	if base64Value == "" {
+		return nil, fmt.Errorf("NO_KEY_FOUND")
+	}
+
 	// Decode the base64-encoded value
 	encryptedValue, err := base64.StdEncoding.DecodeString(base64Value)
 	if err != nil {
@@ -128,7 +132,7 @@ func (ov *OwlVault) RetrieveLatestVersion(keyPath string) (map[string]interface{
 	}
 
 	if version < 1 {
-		return nil, fmt.Errorf("key_path not present in the valut")
+		return nil, fmt.Errorf("NO_KEY_FOUND")
 	}
 
 	return ov.RetrieveVersion(keyPath, version)

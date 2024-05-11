@@ -1,0 +1,17 @@
+# Build build-owlvault
+FROM golang:1.22-alpine as build-owlvault
+
+COPY . .
+RUN go mod download && \
+    CGO_ENABLED=0 GOOS=linux go build -o /go/bin/build-owlvault aws_lambda.go
+
+# Build base image
+FROM alpine:3.19.1
+
+ENV OWLVAULT_CONFIG_PATH=/config/owlhub-config.yaml
+
+RUN mkdir /config
+COPY --from=build-owlvault /go/bin/build-owlvault /bin/owlvault
+COPY config.yaml /config/owlhub-config.yaml
+
+ENTRYPOINT ["/bin/owlvault"]
