@@ -19,7 +19,7 @@ type RetrieveKeyRequest struct {
 type RetrieveKeyResponseData struct {
 	KeyPath string                 `json:"keyPath"`
 	Data    map[string]interface{} `json:"data"`
-	Error   Error                  `json:"error,omitempty"`
+	Errors  []Error                `json:"errors,omitempty"`
 }
 
 type RetrieveKeyResponse struct {
@@ -62,9 +62,11 @@ func RetrieveKey(c *gin.Context, ov *vault.OwlVault) (int, any) {
 				RequestId: uuid.New().String(),
 				Data: RetrieveKeyResponseData{
 					KeyPath: retrieveKeyRequest.KeyPath,
-					Error: Error{
-						Code:    "InvalidKey.KeyNotFound",
-						Message: "Specified key not found in the vault",
+					Errors: []Error{
+						{
+							Code:    "InvalidKey.KeyNotFound",
+							Message: "Specified key not found in the vault",
+						},
 					},
 				},
 			}

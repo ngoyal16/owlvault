@@ -55,17 +55,21 @@ func RetrieveKeys(c *gin.Context, ov *vault.OwlVault) (int, any) {
 			if err.Error() == "NO_KEY_FOUND" {
 				retrieveKeysResponseData = append(retrieveKeysResponseData, RetrieveKeyResponseData{
 					KeyPath: retrieveKeyRequest.KeyPath,
-					Error: Error{
-						Code:    "InvalidKey.KeyNotFound",
-						Message: "Specified key not found in the vault",
+					Errors: []Error{
+						{
+							Code:    "InvalidKey.KeyNotFound",
+							Message: "Specified key not found in the vault",
+						},
 					},
 				})
 			} else {
 				retrieveKeysResponseData = append(retrieveKeysResponseData, RetrieveKeyResponseData{
 					KeyPath: retrieveKeyRequest.KeyPath,
-					Error: Error{
-						Code:    "InternalFailure",
-						Message: "The request processing has failed because of an unknown error, exception, or failure.",
+					Errors: []Error{
+						{
+							Code:    "InternalFailure",
+							Message: "The request processing has failed because of an unknown error, exception, or failure.",
+						},
 					},
 				})
 			}
