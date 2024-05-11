@@ -64,10 +64,6 @@ func main() {
 		v1.PATCH("ks2", ks2.KS2(owlVault))
 	}
 
-	// Register routes for different API versions
-	//v1.HandleFunc("/secret/data/{key_path}", owlVault.StoreHandler).Methods("POST")
-	//v1.HandleFunc("/secret/data/{key_path}", owlVault.RetrieveHandler).Methods("GET")
-
 	// Start HTTP server
 	addr := cfg.Server.Addr
 	log.Printf("Server listening on addr %s", addr)
@@ -76,24 +72,4 @@ func main() {
 		log.Fatalf("Failed to start server: %v", err)
 	}
 
-	// Example usage: Store and retrieve data
-	//key := "example_key"
-	//err = owlVault.Store(key, map[string]interface{}{
-	//	"k1": "val1",
-	//})
-	//if err != nil {
-	//	log.Fatalf("Failed to store data: %v", err)
-	//}
-	//
-	//storedValue, err := owlVault.RetrieveVersion(key, 1)
-	//if err != nil {
-	//	log.Fatalf("Failed to retrieve data: %v", err)
-	//}
-	//log.Printf("Retrieved value: %s", storedValue)
-	//
-	//storedValue, err = owlVault.RetrieveLatestVersion(key)
-	//if err != nil {
-	//	log.Fatalf("Failed to retrieve data: %v", err)
-	//}
-	//log.Printf("Retrieved value: %s", storedValue)
 }

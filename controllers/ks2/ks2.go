@@ -32,6 +32,9 @@ func KS2(ov *vault.OwlVault) gin.HandlerFunc {
 		case "RetrieveKey":
 			fmt.Println(requestType)
 			code, response = RetrieveKey(c, ov)
+		case "RetrieveKeys":
+			fmt.Println(requestType)
+			code, response = RetrieveKeys(c, ov)
 		default:
 			code = http.StatusBadRequest
 			response = ErrorResponse{
