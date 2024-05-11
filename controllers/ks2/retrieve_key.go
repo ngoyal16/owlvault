@@ -58,7 +58,7 @@ func RetrieveKey(c *gin.Context, ov *vault.OwlVault) (int, any) {
 	if err != nil {
 		fmt.Println(err)
 		if err.Error() == "NO_KEY_FOUND" {
-			return http.StatusNoContent, RetrieveKeyResponse{
+			return http.StatusNotFound, RetrieveKeyResponse{
 				RequestId: uuid.New().String(),
 				Data: RetrieveKeyResponseData{
 					KeyPath: retrieveKeyRequest.KeyPath,
