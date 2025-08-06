@@ -36,6 +36,7 @@ func (m *MySQLStorage) Migrate() error {
             key_path VARCHAR(255) NOT NULL,
             contents TEXT NOT NULL,
             hmac TEXT NOT NULL,
+            kp_id TEXT NOT NULL,
             version INT NOT NULL
         );
     `)
@@ -46,19 +47,19 @@ func (m *MySQLStorage) Migrate() error {
 }
 
 // Store stores the key-value pair with the specified version and timestamp.
-func (m *MySQLStorage) Store(key, contents, hmac string, kpId string, version int) error {
-	_, err := m.db.Exec("INSERT INTO kv_store (key_path, contents, hmac, version) VALUES (?, ?, ?, ?)", key, contents, hmac, version)
+func (m *MySQLStorage) Store(key, contents, hmac, kpId string, version int) error {
+	_, err := m.db.Exec("INSERT INTO kv_store (key_path, contents, hmac, kp_id, version) VALUES (?, ?, ?, ?, ?)", key, contents, hmac, kpId, version)
 	return err
 }
 
 // Retrieve retrieves the value for the specified key and version.
 func (m *MySQLStorage) Retrieve(key string, version int) (string, string, string, error) {
-	var value string
-	err := m.db.QueryRow("SELECT value FROM kv_store WHERE key_path = ? AND version = ?", key, version).Scan(&value)
+	var contents, hmac, kpId string
+	err := m.db.QueryRow("SELECT contents, hmac, kp_id FROM kv_store WHERE key_path = ? AND version = ?", key, version).Scan(&contents, &hmac, &kpId)
 	if err != nil {
 		return "", "", "", err
 	}
-	return value, "", "", nil
+	return contents, hmac, kpId, nil
 }
 
 // LatestVersion returns the latest version of the value for the specified key.
