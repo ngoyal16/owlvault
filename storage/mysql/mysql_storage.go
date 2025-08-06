@@ -63,10 +63,15 @@ func (m *MySQLStorage) Retrieve(key string, version int) (string, string, string
 
 // LatestVersion returns the latest version of the value for the specified key.
 func (m *MySQLStorage) LatestVersion(key string) (int, error) {
-	var latestVersion int
+	var latestVersion sql.NullInt64
 	err := m.db.QueryRow("SELECT MAX(version) FROM kv_store WHERE key_path = ?", key).Scan(&latestVersion)
 	if err != nil {
 		return 0, err
 	}
-	return latestVersion, nil
+
+	if !latestVersion.Valid {
+		return 0, nil
+	}
+
+	return int(latestVersion.Int64), nil
 }
